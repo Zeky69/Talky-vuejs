@@ -45,7 +45,7 @@ app.use('/image', imageRoutes);
 
 
 
-server.listen(3000, () => {
+server.listen(process.env.PORT, () => {
     console.log('Server running on port 3000');
 });
 
