@@ -1,32 +1,69 @@
 <template>
   <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
     <router-view/>
   </div>
 </template>
 
+<script>
+import Cookies from "js-cookie";
+import {checkToken} from "@/services/login.service";
+
+export default {
+  name: 'App',
+  async created() {
+    let jwt = Cookies.get('jwt');
+    if(jwt) {
+       await checkToken().then(async (response) => {
+         console.log(response.data);
+         if (response.status === 200) {
+           await this.$store.dispatch('authenticate', {token: jwt, ...response.data});
+           await this.$store.dispatch('initializeSocket');
+         }
+       }).catch(() => {
+        Cookies.remove('jwt');
+      })
+    }
+  },
+  mounted() {
+    console.log(process.env.API_URL);
+
+  },
+  methods: {
+    logout() {
+      this.$store.dispatch('unAuthenticate').then(() => {
+        this.$router.push('/login').catch(() => {});
+      })
+    }
+  }
+}
+</script>
+
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+:root {
+  --primary-color: #2A2C30;
+  --secondary-color: #303237;
+  --tertiary-color: rgb(30, 31, 34);
+  --text-color: #D1D3D7;
+  --actif-color: #FCFCFC;
+  --selection-color: #3F4148;
+  --inactif-color: #9299A2;
+  --red-color: #D12828;
+  --green-color: #007B00;
+}
+
+body {
+  margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  background-color: var(--secondary-color);
+  color: var(--inactif-color);
+  font-family: Roboto , sans-serif;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 }
 
-nav {
-  padding: 30px;
-}
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
 
-nav a.router-link-exact-active {
-  color: #42b983;
-}
 </style>
