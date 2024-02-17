@@ -115,7 +115,6 @@ export default {
   },
   async mounted() {
     this.conversation = await this.$store.dispatch('getConversations');
-    console.log(this.conversation);
 
 
 

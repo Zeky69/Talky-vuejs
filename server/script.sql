@@ -13,6 +13,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255),
     password VARCHAR(255) NOT NULL,
     avatar VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -53,12 +54,12 @@ CREATE TABLE friends (
 );
 
 
-INSERT INTO users (username, password,avatar) VALUES ('Zeky', 'mdp','zeky.webp');
-INSERT INTO users (username, password,avatar) VALUES ('Enzo', 'mdp','enzo.webp');
-INSERT INTO users (username, password,avatar) VALUES ('Calixte', 'mdp','calixte.webp');
-INSERT INTO users (username, password,avatar) VALUES ('Manon', 'mdp','manon.webp');
-INSERT INTO users (username, password,avatar) VALUES ('Tristan', 'mdp','tristan.webp');
-INSERT INTO users (username, password,avatar) VALUES ('Zafam', 'mdp','zafam.webp');
+INSERT INTO users (username, password,avatar) VALUES ('Zeky', '$2b$10$W0XcFkqs0eVEfZZ0Pc4Y5OxbJ9LnxL4NRhBBF8sU3Nga1HnRbdvhK','zeky.webp');
+INSERT INTO users (username, password,avatar) VALUES ('Enzo', '$2b$10$W0XcFkqs0eVEfZZ0Pc4Y5OxbJ9LnxL4NRhBBF8sU3Nga1HnRbdvhK','enzo.webp');
+INSERT INTO users (username, password,avatar) VALUES ('Calixte', '$2b$10$W0XcFkqs0eVEfZZ0Pc4Y5OxbJ9LnxL4NRhBBF8sU3Nga1HnRbdvhK','calixte.webp');
+INSERT INTO users (username, password,avatar) VALUES ('Manon', '$2b$10$W0XcFkqs0eVEfZZ0Pc4Y5OxbJ9LnxL4NRhBBF8sU3Nga1HnRbdvhK','manon.webp');
+INSERT INTO users (username, password,avatar) VALUES ('Tristan', '$2b$10$W0XcFkqs0eVEfZZ0Pc4Y5OxbJ9LnxL4NRhBBF8sU3Nga1HnRbdvhK','tristan.webp');
+INSERT INTO users (username, password,avatar) VALUES ('Zafam', '$2b$10$W0XcFkqs0eVEfZZ0Pc4Y5OxbJ9LnxL4NRhBBF8sU3Nga1HnRbdvhK','zafam.webp');
 -- Continuer à ajouter des utilisateurs selon le besoin.
 -- Ajoutez plus d'insertions selon le besoin.
 WITH conversation_id AS (
@@ -115,3 +116,4 @@ select * from users;
 select * from conversations;
 
 select * from messages;
+

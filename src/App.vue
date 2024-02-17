@@ -14,19 +14,19 @@ export default {
     let jwt = Cookies.get('jwt');
     if(jwt) {
        await checkToken().then(async (response) => {
-         console.log(response.data);
-         if (response.status === 200) {
+         if (response.error === 0) {
            await this.$store.dispatch('authenticate', {token: jwt, ...response.data});
            await this.$store.dispatch('initializeSocket');
+
          }
+          else {
+            Cookies.remove('jwt');
+            this.$router.push('/login').catch(() => {});
+          }
        }).catch(() => {
         Cookies.remove('jwt');
       })
     }
-  },
-  mounted() {
-    console.log(process.env.API_URL);
-
   },
   methods: {
     logout() {

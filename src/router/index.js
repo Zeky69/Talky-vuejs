@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import LoginView from '../views/LoginView.vue'
+import InscriptionView from '../views/RegisterView.vue'
 import Cookies from 'js-cookie';
 import {axiosAgent} from "@/services/axios.service";
 Vue.use(VueRouter)
@@ -16,6 +17,12 @@ const routes = [
     path: '/login',
     name: 'login',
     component: LoginView,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: InscriptionView,
     meta: { requiresAuth: false }
   },
   {

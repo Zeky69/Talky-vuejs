@@ -104,11 +104,9 @@ export default {
     async sendRequestFriend(id) {
 
       const resultat = await addFriend(id)
-      console.log(resultat);
 
       if(resultat.error === 0) {
         this.listNotFriend.splice(this.listNotFriend.findIndex((ami) => ami.id === id), 1);
-        console.log(this.listNotFriend);
 
       }
 
@@ -122,7 +120,6 @@ export default {
           console.log(data.data);
         } else {
           getFriends().then((amis) => {
-            console.log(amis);
             this.amis = amis.data;
           });
           this.$store.dispatch('addConversation', data.data.conversation);
@@ -146,7 +143,6 @@ export default {
   },
   mounted() {
     getFriends().then((amis) => {
-      console.log(amis);
       this.amis = amis.data;
     });
 

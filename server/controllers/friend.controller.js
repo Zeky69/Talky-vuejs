@@ -3,10 +3,8 @@ const {createConversation, getConversationByIdWithUser} = require("../services/c
 
 exports.getFriends = async (req, res) => {
     try {
-        console.log(req.user);
 
         const friends = await friendService.getFriends(req.user);
-        console.log(friends);
         res.status(200).json(friends);
     } catch (error) {
         res.status(500).json({ error: error.message });

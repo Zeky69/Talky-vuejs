@@ -3,7 +3,7 @@
     <div class="content">
       <h2>Oops! Page Not Found</h2>
       <p>La page que vous recherchez n'a pas pu être trouvée.</p>
-      <router-link to="/" class="back-link">Retour à la page d'accueil</router-link>
+      <router-link to="/chat" class="back-link">Retour à la page d'accueil</router-link>
     </div>
   </div>
 </template>
@@ -26,6 +26,7 @@ export default {
 .content {
   text-align: center;
 }
+
 
 h2 {
   font-size: 2em;

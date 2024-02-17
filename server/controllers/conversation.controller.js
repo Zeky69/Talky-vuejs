@@ -4,7 +4,6 @@ const { getConversation , getConversationUser, getParticipant} = require('../ser
 function leaveAll(socket) {
     const rooms = socket.rooms
     rooms.forEach((room) => {
-        console.log(room)
         socket.leave(room);
 
     });
@@ -41,12 +40,16 @@ exports.socketConversation = (userId,socket) => {
 
 exports.getConversations = async (req, res) => {
     try {
+
         const conv = await getConversationUser(req.user);
-        if(conv)
+        if(conv) {
             res.status(200).json(conv);
-        else
+        }
+        else {
             res.status(404).json({error: "Conversation not found"});
+        }
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: error.message });
     }
 }

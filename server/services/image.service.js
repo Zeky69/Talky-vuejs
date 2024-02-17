@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const getImage = async (req, res) => {
+const getImage = async (req) => {
     try {
         //envoyer le fichier si il existe
          const filename = req.params.filename;
@@ -15,30 +15,29 @@ const getImage = async (req, res) => {
         return { error: 1 , data: "Server Error"};
     }
 }
+//
+// const uploadImage = async (req) => {
+//     try {
+//         const file = req.files.file;
+//         const filename = file.name;
+//         const uploadPath = path.join(__dirname, '../upload', filename);
+//         await file.mv(uploadPath, (err) => {
+//             if (err) {
+//                 console.error(err);
+//                 return { error: 1 , data: "Server Error" };
+//             }
+//         });
+//         return { error: 0 , data: "File Uploaded Successfully" };
+//
+//     } catch (error) {
+//         console.error(error);
+//         return  { error: 1 , data: "Server Error" } ;
+//     }
+// }
 
-const uploadImage = async (req, res) => {
+const removeImage = async (filename) => {
     try {
-        const file = req.files.file;
-        const filename = file.name;
-        const uploadPath = path.join(__dirname, '../upload', filename);
-        await file.mv(uploadPath, (err) => {
-            if (err) {
-                console.error(err);
-                return { error: 1 , data: "Server Error" };
-            }
-        });
-        return { error: 0 , data: "File Uploaded Successfully" };
-
-    } catch (error) {
-        console.error(error);
-        return  { error: 1 , data: "Server Error" } ;
-    }
-}
-
-const removeImage = async (req, res) => {
-    try {
-        const filename = req.params.filename;
-        const file = path.join(__dirname, '../upload', filename);
+        const file ='upload/'+filename;
         if (!fs.existsSync(file)) {
             return { error: 1 , data: "File Not Found" };
         }
@@ -51,8 +50,9 @@ const removeImage = async (req, res) => {
 }
 
 
+
 module.exports = {
     getImage,
-    uploadImage,
-    removeImage
+    // uploadImage,
+    removeImage,
 }

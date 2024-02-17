@@ -3,20 +3,22 @@
     <div>
     <div class="input-container">
     <label for="username">identifiant</label>
-    <input type="text" id="username" placeholder="Adresse e-mail" v-model="username">
+    <input type="text" id="username" placeholder="Username" v-model="username">
+      <span class="error" v-if="fromIsValid">Mot de passe ou identifiant invalide </span>
     </div>
     <div class="over-span">
     <div class="input-container">
       <label for="password">Mot de passe</label>
     <input type="password"  placeholder="Mot de passe" id="password" v-model="password" @keyup.enter="login">
+      <span class="error" v-if="fromIsValid">Mot de passe ou identifiant invalide </span>
     </div>
-      <p class="motdepasse">Mot de passe oublié ?</p>
+      <p  class="motdepasse">Mot de passe oublié ?</p>
 
     </div>
     </div>
     <div class="action">
       <button-current title="Se connecter" @click="login" ></button-current>
-      <p>S'inscrire ?</p>
+      <p @click="goTo('/register')">S'inscrire ?</p>
 
     </div>
   </section>
@@ -34,23 +36,21 @@ export default {
   data () {
     return {
       username: '',
-      password: ''
+      password: '',
+      fromIsValid: false,
     }
   },computed: {
    ...mapState(['socket']),
-    isFormValid() {
-      return this.username !== '' && this.password !== ''
-    }
   },
   methods: {
     login() {
       login({username:this.username, password:this.password})
         .then((response) => {
-          if(response.status !== 200) {
+          if(response.error !== 0) {
             console.log(response);
+            this.fromIsValid = true;
             return;
           }
-          console.log(response);
           this.$store.dispatch('authenticate', response.data).then(
             () => {
 
@@ -70,8 +70,18 @@ export default {
 
 
 
+    },goTo(route) {
+      this.$router.push(route).catch(() => {});
+    }
+  },
+  watch: {
+    username() {
+      this.fromIsValid = false;
     },
-}
+    password() {
+      this.fromIsValid = false;
+    }
+  }
 }
 
 </script>
@@ -177,6 +187,16 @@ section {
   align-items: center;
   justify-content: space-between;
   background: var(--secondary-color);
+}
+
+.error {
+  color: var(--red-color);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin-top: 5px;
+  text-align: center;
 }
 
 

@@ -4,6 +4,8 @@ import {friends} from "@/store/friend";
 import Cookies from "js-cookie";
 import {getConversations, getFriends, getRequestFriends} from "@/services/friends.service";
 import {connectSocket} from "@/services/socket.service";
+import {uploadAvatar} from "@/services/image.service";
+import {axiosAgent} from "@/services/axios.service";
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -77,15 +79,14 @@ export default new Vuex.Store({
   },
   actions: {
 
-    initializeSocket({ commit }) {
-        console.log("initializeSocket");
+    initializeSocket({ commit ,rootState}) {
         const socket = connectSocket(Cookies.get('jwt'));
 
         socket.on('newFriend', (data) => {
             commit('addConversation', data.conversation);
             getFriends().then((friend) => {
                if(friend.error === 0){
-                   friends.state.friends = friend.data;
+                   rootState.friends.friends = friend.data;
                }
             });
 
@@ -142,6 +143,8 @@ export default new Vuex.Store({
         commit('setUsername', data.username);
         commit('setAvatar', data.avatar);
         commit('setToken', data.token);
+        axiosAgent.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+
     },
     unAuthenticate({ commit ,state}) {
         commit('setIsAuthenticated', false);
@@ -178,13 +181,10 @@ export default new Vuex.Store({
 
         friends.state.conversation = data.messages;
         friends.state.participant = data.participant;
-        console.log(friends.state.conversation , "conversation");
-        console.log(friends.state.participant , "participant");
 
       });
       state.socket.on('newMessage', (message) => {
         friends.state.conversation.push(message);
-        console.log(friends.state.conversation , "conversation");
       });
       return true;
     },
@@ -209,7 +209,23 @@ export default new Vuex.Store({
         } catch (err) {
             console.log(err);
         }
-    }
+    },
+      async uploadAvatar({ commit }, avatar) {
+        try {
+            const response = await uploadAvatar(avatar);
+            if (response.error === 0) {
+                commit('setAvatar', response.data);
+                return response.data;
+            }
+            else {
+                console.log(response.data);
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
+
+      }
 
 
 

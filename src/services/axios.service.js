@@ -57,7 +57,9 @@ async function postRequest(uri, data, name) {
     let response = null
     try {
         response = await axiosAgent.post(uri, data)
+
     } catch (err) {
+        console.log(err);
         response = handleError(name, err);
     }
     return response;
@@ -107,7 +109,7 @@ async function postFileRequest(uri, data, name) {
     } catch (err) {
         response = handleError(name, err);
     }
-    return response.data;
+    return response;
 }
 
 

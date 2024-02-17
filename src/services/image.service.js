@@ -14,8 +14,27 @@ async function deleteImage(filename) {
     return await deleteRequest('/image/' + filename, 'DELETEIMAGE')
 }
 
+async function uploadAvatar(file) {
+    try {
+        const req = await postFileRequest('/image', file, 'UPLOADAVATAR');
+        if (req.status === 200) {
+            return {error: 0, data: req.data}
+        }
+        return req.data
+
+    }
+    catch (err) {
+        console.log(err);
+        return {error: 1, data: "Erreur inconnue"}
+    }
+
+}
+
+
+
 export {
     getImage,
     uploadImage,
-    deleteImage
+    deleteImage,
+    uploadAvatar
 }
