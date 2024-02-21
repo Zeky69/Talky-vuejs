@@ -38,6 +38,13 @@ const routes = [
     component: () => import('../views/HomeView'),
     children: [
       {
+        path: '',
+        name: 'nothing',
+        meta: { requiresAuth: true },
+        component: () => import('@/components/Navigator.vue')
+      }
+        ,
+      {
         path: ':id',
         name: 'conversation',
         meta: { requiresAuth: true },
@@ -77,13 +84,10 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  console.log("beforeEach");
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
   if (requiresAuth) {
     const token = Cookies.get('jwt');
-    console.log("Token:", token);
-
     if (!token) {
       console.log("No token, redirecting to /login");
       router.push({name: 'login'}).catch(()=>{});

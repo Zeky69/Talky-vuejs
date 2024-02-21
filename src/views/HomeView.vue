@@ -37,7 +37,7 @@ export default {
       })
     },
     changeState() {
-      if(document.documentElement.clientWidth < 1500) {
+      if(document.documentElement.clientWidth < 1500)  {
         this.stateNavbar = !this.stateNavbar;
       }
     }
@@ -76,7 +76,7 @@ export default {
   width: 30vw;
   height: 100vh;
   position: fixed;
-  z-index: 200;
+  z-index: 10;
   top: 0;
   right: 0;
   background-color: rgba(30, 31, 34, 0.9);

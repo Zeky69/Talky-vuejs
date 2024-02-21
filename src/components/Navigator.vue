@@ -49,6 +49,7 @@ export default defineComponent({
     getImage,
     handleClick() {
       this.$emit('return');
+      this.$emit('change-state');
     }
   }
 })

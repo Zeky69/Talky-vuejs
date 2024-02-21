@@ -72,7 +72,7 @@ async function deleteRequest(uri,data, name) {
     } catch (err) {
         response = handleError(name, err);
     }
-    return response.data;
+    return response;
 }
 
 

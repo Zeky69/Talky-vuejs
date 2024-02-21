@@ -1,19 +1,28 @@
+const {getFriends} = require("../services/friend.service");
 
 
-
-const createMessage = async (req, res, next) => {
-    const { id_conversation, from, message } = req.body;
-    if (!id_conversation || !from || !message) {
-        return res.status(400).json({
-            status: 'error',
-            error: 'Invalid request data',
-        });
-    }
+const checkFriend = async (req, res, next) => {
     try {
-        const message = await createMessage( data.id_conversation, data.from, data.message);
-        socket.emit('message', message);
+        const {friends} = req.body;
+        const friend = (await getFriends(req.user)).map(f => f.friend_id);
+        for (let i = 0; i < friends.length; i++) {
+            console.log(friends[i] , friend , friend.includes(friends[i]))
+
+            if (!friend.includes(friends[i])) {
+                return res.status(400).json({error: "You are not friend with " + friends[i]});
+            }
+        }
+        next();
+
+
+
+
     } catch (error) {
-        console.log(error);
+        res.status(500).json({ error: error.message });
     }
-    next();
+
 }
+
+module.exports = {
+    checkFriend
+};

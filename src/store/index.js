@@ -2,7 +2,13 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import {friends} from "@/store/friend";
 import Cookies from "js-cookie";
-import {getConversations, getFriends, getRequestFriends} from "@/services/friends.service";
+import {
+    createConversation,
+    getConversations,
+    getFriends,
+    getRequestFriends,
+    removeFriendRequest
+} from "@/services/friends.service";
 import {connectSocket} from "@/services/socket.service";
 import {uploadAvatar} from "@/services/image.service";
 import {axiosAgent} from "@/services/axios.service";
@@ -75,7 +81,10 @@ export default new Vuex.Store({
     },
     setRequestFriends(state, requestFriends) {
     state.requestFriends = requestFriends;
-    }
+    },
+    removeRequestFriends(state, id) {
+         state.requestFriends.splice(state.requestFriends.findIndex(friend => friend.id === id), 1);
+      }
   },
   actions: {
 
@@ -96,6 +105,7 @@ export default new Vuex.Store({
         socket.on('newRequest', async () => {
             try {
                 const requestFriends = await getRequestFriends();
+                console.log(requestFriends);
                 if (requestFriends.error === 0){
                     commit('setRequestFriends', requestFriends.data);
                     return requestFriends.data;
@@ -108,6 +118,10 @@ export default new Vuex.Store({
             }
 
         },
+        );
+        socket.on('newConversation', (conversation) => {
+            commit('addConversation', conversation);
+        }
         );
 
         socket.on('removeFriend', (friend) => {
@@ -222,6 +236,38 @@ export default new Vuex.Store({
             }
         }
         catch (err) {
+            console.log(err);
+        }
+
+      },
+      async removeRequestFriend({ commit }, id) {
+
+        try {
+            const response = await removeFriendRequest(id);
+            if (response.error === 0) {
+                commit('removeRequestFriends', id);
+                return true
+            }
+            else {
+                console.log(response.data);
+                return false
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
+      },
+      async createConversation({ commit }, data) {
+        try {
+            const response = await createConversation(data.friends, data.name);
+            if (response.error === 0) {
+                commit('addConversation', response.data);
+                return response.data;
+            }
+            else {
+                console.log(response.data);
+            }
+        }catch (err) {
             console.log(err);
         }
 

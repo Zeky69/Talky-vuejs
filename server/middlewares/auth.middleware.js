@@ -41,7 +41,6 @@ const signupMidd = async (req, res, next) => {
         let regexPassword = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/;
         let result = await getAccountByUsername(username);
         let usernameIsUsed = result.length === 0;
-        console.log(usernameIsUsed , regexEmail , regexPassword);
         if(!regexEmail.test(email) || !regexPassword.test(password) || !usernameIsUsed){
             res.status(401).send({ error: 'Invalid Infomartion' , data: { email : regexEmail.test(email), password : regexPassword.test(password), username : usernameIsUsed } });
             return;

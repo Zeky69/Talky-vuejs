@@ -1,4 +1,4 @@
-import {getConversation, getFriends} from "@/services/friends.service";
+import {acceptFriend, getConversation, getFriends} from "@/services/friends.service";
 
 export const friends = {
     namespaced: true,
@@ -51,5 +51,22 @@ export const friends = {
             }
 
         },
+
+        async acceptFriend({ dispatch}, id) {
+            try {
+                const request = await acceptFriend(id);
+
+                if (request.error === 0) {
+                   dispatch('getFriends');
+                   dispatch('getRequestFriends', null,{ root: true });
+                   dispatch('addConversation', request.data.conversation,  { root: true });
+
+                } else {
+                    console.log(request.data);
+                }
+            }catch (err){
+                console.log(err)
+            }
+        }
     }
 }

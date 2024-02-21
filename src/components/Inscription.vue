@@ -93,7 +93,6 @@ export default {
     imageSelected(evt) {
       evt.preventDefault()
       this.cancelButton = true;
-      console.log(evt.target.files[0])
       this.imageSelect = evt.target.files[0];
       this.image = URL.createObjectURL(evt.target.files[0]);
 
@@ -105,8 +104,7 @@ export default {
       }
       const formData = new FormData();
       formData.append('upload', this.imageSelect);
-      this.$store.dispatch('uploadAvatar', formData).then((response) => {
-        console.log(response);
+      this.$store.dispatch('uploadAvatar', formData).then(() => {
         this.$router.push('/chat').catch(() => {});
       })
     }
@@ -123,7 +121,6 @@ export default {
 
         signup({username: this.username, password: this.password, email: this.email})
             .then((response) => {
-              console.log(response)
               if (response.error === 1 && response.data.error === 'Invalid Infomartion') {
 
                 this.usernameisUsed = response.data.data.username === false

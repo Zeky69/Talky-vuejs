@@ -107,3 +107,16 @@ exports.getListNotFriendStartLike = async (req, res) => {
     }
 }
 
+
+
+exports.removeFriendRequest = async (req, res) => {
+    try {
+        const friend = await friendService.removeFriendRequest(req.user, req.params.id);
+        if(req.connected[req.params.id])
+            req.connected[req.params.id].emit('removeFriend', friend);
+        res.status(200).json(friend);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+

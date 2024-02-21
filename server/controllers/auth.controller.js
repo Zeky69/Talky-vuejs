@@ -24,9 +24,6 @@ exports.login = async (req, res) => {
 exports.signup = async (req, res) => {
     const { username, password ,email } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('mdp')
-    console.log(await bcrypt.hash('mdp', 10));
-
     try {
         const newUser = await createAccount(username, hashedPassword , email, 'null');
 

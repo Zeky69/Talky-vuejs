@@ -20,7 +20,7 @@
       <router-link to="/profil" class="menu-item">
         <i class="fa fa-user"></i><span>Profil</span>
       </router-link>
-      <router-link to="/friends" class="menu-item">
+      <router-link to="/friends" @click.native="changeState" class="menu-item">
         <i class="fa fa-users"></i><span>Amis</span>
       </router-link>
 
@@ -30,9 +30,49 @@
 
       <div class="conversation-header">
         <span>Conversations</span>
-        <button>
+        <button class="conversation-header-button" @click="menuConversation = true">
           <i class="fa fa-plus"></i>
         </button>
+        <!--    Menu pour ajouter un ami    -->
+        <div v-if="menuConversation" class="back-menu" @click="clickOutside">
+          <div class="menu-group" ref="menuGroup">
+            <div class="close-menu">
+              <div class="grid-2"><h1>Nouvelle Conversation</h1></div>
+              <div class="grid-3">
+                <i class="fas fa-times" @click="menuConversation=false"></i>
+              </div>
+            </div>
+            <div class="input-container">
+              <div class="added-friend" v-for="(element , index ) in friendAddForGroup " :key="index +'friend'">
+                <img :src="getImage(element.avatar)" alt="avatar">
+                <span>{{ element.username }}</span>
+                <i @click="removeFriendAddForGroup($event,index)" class="fas fa-times"></i>
+              </div>
+
+              <input v-model="searchFriends" @input="selectedFriendIndex = 0" @keyup.delete="removeSelected"
+                     @keydown.delete="removeLastFriendAddForGroup" @keydown.enter="addFriendSearchforEnter"
+                     class="input-add-friends" placeholder="Ajouter un ami">
+            </div>
+
+            <div class="list-ami">
+              <div class="element-ami" v-for="(ami, index) in getFriendsForAdd" :key="index"
+                   :class="{ 'selected': index === selectedFriendIndex}" @mouseenter="selectedFriendIndex = index"
+                   @mouseleave="selectedFriendIndex = null">
+                <div class="element-info">
+                  <img :src="getImage(ami.avatar)" alt="avatar">
+                  <span>{{ ami.username }}</span>
+                </div>
+                <i @click="addFriendAddForGroup($event,ami)" class="fas fa-plus"></i>
+              </div>
+            </div>
+            <div class="container-name-input">
+              <input v-model="nameConversation"  maxlength="30" type="text" placeholder="Nom de la conversation">
+              <div class="action-button">
+                <button class="button-create" @click="createConversation" :disabled="!formIsValid">Créer</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="conversation-list">
@@ -53,7 +93,7 @@
       <span>{{ getUsername }}</span>
       <div @blur="paramMenu = false" tabindex="0" class="menu-gear">
         <i @click="paramMenu=!paramMenu" class="fas fa-cog"></i>
-        <div v-if="paramMenu" class="menu-param" >
+        <div v-if="paramMenu" class="menu-param">
           <div class="logout" @click="logout">
             <i class="fas fa-sign-out-alt"></i>
             <span> Déconnexion</span>
@@ -77,6 +117,7 @@
 <script>
 import {getImage} from "@/services/image.service";
 import {mapState} from "vuex";
+import {nextTick} from "vue";
 
 export default {
   name: 'vNavbar',
@@ -88,17 +129,31 @@ export default {
   },
   computed: {
     ...mapState(['username', 'avatar']),
+    ...mapState('friends', ['friends']),
     getUsername() {
       return this.username || 'Pseudo';
     },
     getAvatar() {
       return this.avatar || 'default.png';
     },
+
+    getFriendsForAdd() {
+      return this.friends.filter(friend => this.friendAddForGroup.indexOf(friend) === -1 && friend.username.toLowerCase().includes(this.searchFriends.toLowerCase()))
+    },
+    formIsValid(){
+      return this.friendAddForGroup.length > 1 && this.nameConversation.length > 0 && this.nameConversation.length < 30;
+    }
+
   },
   data() {
     return {
       conversation: [],
-      paramMenu: false
+      paramMenu: false,
+      friendAddForGroup: [],
+      searchFriends: '',
+      selectedFriendIndex: null,
+      menuConversation: false,
+      nameConversation: ''
     }
   },
   methods: {
@@ -109,16 +164,57 @@ export default {
         });
       })
     },
+    removeFriendAddForGroup(evt, index) {
+      this.friendAddForGroup.splice(index, 1);
+      evt.stopPropagation();
+
+    },
+    addFriendAddForGroup(evt, element) {
+      this.friendAddForGroup.push(element);
+      evt.stopPropagation();
+    },
     changeState() {
       this.$emit('change-state');
+    },
+    removeLastFriendAddForGroup() {
+      if (this.searchFriends === '' && this.friendAddForGroup.length > 0) {
+        nextTick(() => {
+          this.friendAddForGroup.pop();
+        })
+      }
+    },
+    addFriendSearchforEnter() {
+      if (this.searchFriends.length !== 0 && this.selectedFriendIndex !== null && this.getFriendsForAdd.length > 0) {
+        this.friendAddForGroup.push(this.getFriendsForAdd[0]);
+        this.searchFriends = '';
+      }
+    },
+    removeSelected() {
+      if (this.searchFriends === '') {
+        this.selectedFriendIndex = null;
+
+      }
+    },
+    clickOutside(event) {
+      this.$refs.menuGroup.contains(event.target) ? this.menuConversation = true : this.menuConversation = false;
+    },
+    createConversation() {
+      let variable = {
+        name: this.nameConversation,
+        friends: this.friendAddForGroup.map(friend => friend.friend_id)
+      }
+
+      this.$store.dispatch('createConversation', variable).then(() => {
+        this.menuConversation = false;
+        this.searchFriends = '';
+        this.friendAddForGroup = [];
+        this.nameConversation = '';
+      })
     }
   },
   async mounted() {
     this.conversation = await this.$store.dispatch('getConversations');
-
-
-
-
+    await this.$store.dispatch('friends/getFriends');
   }
 }
 
@@ -255,7 +351,7 @@ export default {
   color: var(--inactif-color);
 }
 
-.conversation-header button {
+.conversation-header-button{
   border: none;
   background-color: transparent;
   color: var(--inactif-color);
@@ -264,7 +360,7 @@ export default {
   border-radius: 50%;
 }
 
-.conversation-header button:hover {
+.conversation-header-button:hover {
   color: var(--actif-color);
   background-color: var(--selection-color);
 
@@ -394,6 +490,268 @@ export default {
 .logout {
   color: var(--red-color);
 }
+
+
+/* MENU FOR CREATE CONVERSATION */
+
+.back-menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(30, 31, 34, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 15;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.menu-group {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 60vw;
+  max-width: 500px;
+  height: 60vh;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: var(--secondary-color);
+  border-radius: 10px;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+  gap: 3px;
+  padding: 5px;
+  background-color: var(--tertiary-color);
+  width: 95%;
+  border-radius: 10px;
+}
+
+
+.input-add-friends {
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  resize: none;
+  flex: 1;
+  min-width: 48px;
+  min-height: 38px;
+  margin: 1px;
+  appearance: none;
+  color: var(--text-color);
+}
+
+.input-add-friends::placeholder {
+  color: var(--inactif-color);
+}
+
+.input-add-friends:focus {
+  outline: none;
+}
+
+.list-ami {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 95%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-y: scroll;
+  padding: 5px;
+  background-color: var(--primary-color);
+  overflow-x: hidden;
+}
+
+.element-ami {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1px;
+  color: var(--text-color);
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+
+.element-ami img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+
+.element-ami i {
+  font-size: 17px;
+  text-align: center;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.element-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+
+.added-friend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  gap: 5px;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.added-friend img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.added-friend i {
+  font-size: 18px;
+  text-align: center;
+  cursor: pointer;
+}
+
+
+.added-friend i:hover {
+  color: var(--red-color);
+}
+
+.added-friend span {
+  font-size: 15px;
+  color: var(--text-color);
+}
+
+.selected {
+  background-color: var(--selection-color);
+  color: var(--actif-color);
+}
+
+.close-menu {
+  display: grid;
+  z-index: 20;
+  width: 100%;
+  grid-template-columns: 1fr 5fr 1fr;
+  align-items: center;
+}
+
+.close-menu i {
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+  padding: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50px;
+}
+
+.close-menu i:hover {
+  background-color: var(--selection-color);
+}
+
+.grid-3 {
+  grid-column: 3;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.grid-2 {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+
+}
+
+.grid-2 h1 {
+  font-size: 1.1em;
+  color: var(--text-color);
+}
+
+
+.container-name-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.container-name-input input {
+  box-sizing: border-box;
+  background: var(--tertiary-color);
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  width: 100%;
+  color: var(--text-color);
+  outline: none;
+}
+
+.container-name-input input::placeholder {
+  color: var(--inactif-color);
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.button-create {
+  background-color: var(--selection-color);
+  color: var(--text-color);
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.button-create:hover {
+  background-color: var(--primary-color);
+}
+
+.button-create:disabled {
+  background-color: var(--inactif-color);
+  color: var(--text-color);
+  cursor: not-allowed;
+}
+
+
 
 
 

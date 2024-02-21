@@ -1,4 +1,4 @@
-const { getConversation , getConversationUser, getParticipant} = require('../services/conversation.service');
+const { getConversation , getConversationUser, getParticipant, createConversation} = require('../services/conversation.service');
 
 
 function leaveAll(socket) {
@@ -48,6 +48,27 @@ exports.getConversations = async (req, res) => {
         else {
             res.status(404).json({error: "Conversation not found"});
         }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+exports.createConversation = async (req, res) => {
+    try {
+        const { friends , name} = req.body;
+        friends.push(req.user);
+        const conv = await createConversation(friends , name , false);
+        if(conv) {
+            friends.forEach(friend => {
+                if (friend !== req.user && req.connected[friend])
+
+                 req.connected[friend].emit('newConversation', conv);
+            });
+            res.status(200).json(conv);
+        }
+        else
+            res.status(404).json({error: "Conversation not found"});
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: error.message });

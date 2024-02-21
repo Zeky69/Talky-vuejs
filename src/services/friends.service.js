@@ -68,6 +68,22 @@ export async function getConversation(id) {
     }
 }
 
+export async function createConversation(friends , name) {
+    try {
+        const req = await postRequest(`/conversations`, {friends , name}, 'createConversation');
+        if(req.status === 200){
+            return {error:0 , data: req.data}
+
+        }
+        return {error:1 , data: req.data}
+    }
+    catch (err) {
+        console.log(err);
+        return {error:1 , data: "Erreur inconnue"}
+
+    }
+}
+
 
 
 export async function acceptFriend(id) {
@@ -170,4 +186,20 @@ export async function getListNotFriendStartLike(username) {
     }
 }
 
+
+export async function removeFriendRequest(id) {
+    try {
+        const req = await deleteRequest(`/friends/refuse/${id}`, {}, 'removeFriendRequest');
+        if (req.status === 200) {
+            return {error: 0, data: req.data}
+
+        }
+        return {error: 1, data: req.data}
+    }
+    catch (err) {
+        console.log(err);
+        return {error: 1, data: "Erreur inconnue"}
+
+    }
+}
 

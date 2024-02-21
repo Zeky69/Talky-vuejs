@@ -47,7 +47,6 @@ export default {
       login({username:this.username, password:this.password})
         .then((response) => {
           if(response.error !== 0) {
-            console.log(response);
             this.fromIsValid = true;
             return;
           }

@@ -7,12 +7,14 @@
 
     <span>Liste des amis</span>
     <div class="list-amis">
-      <div class="element-amis" v-for="(ami,index) in amis" :key="index">
+      <div class="element-amis" v-for="(ami,index) in friends" :key="index">
         <div class="ami-avatar"><img :src="getImage(ami.avatar)" alt="avatar" /></div>
         <div class="ami-username">{{ ami.username }}</div>
 
       </div>
+      <div v-if="friends.length ===0" class="nothing"> Aucun ami </div>
     </div>
+
 
     <span>Demandes d'amis</span>
     <div class="list-amis">
@@ -50,7 +52,7 @@
             <i @click="sendRequestFriend(ami.id)" class="fas fa-user-plus"></i>
           </div>
         </div>
-        <div v-if="listNotFriend.length ===0" class="nothing"> Aucune resultat</div>
+        <div v-if="listNotFriend.length ===0" class="nothing"> Aucun resultat</div>
       </div>
 
       </div>
@@ -62,9 +64,7 @@
 <script>
 import {getImage} from "@/services/image.service";
 import {
-  acceptFriend,
   addFriend,
-  getFriends,
   getListNotFriendStartLike,
 } from "@/services/friends.service";
 import VNavigator from "@/components/Navigator.vue";
@@ -75,14 +75,16 @@ export default {
 
   components: {VNavigator},
   computed: {
-    ...mapState(['requestFriends'])
+    ...mapState(['requestFriends']),
+    ...mapState('friends', ['friends'])
   },
-  methods: {getImage,
+  methods: {
+    getImage,
     returnMenu() {
       this.$emit('change-state');
     },
     refuseFriend(id) {
-      console.log(id);
+      this.$store.dispatch('removeRequestFriend', id);
     },
     searchList() {
       if (this.search.length === 0) {
@@ -115,24 +117,24 @@ export default {
 
 
     acceptFriendHandle(id) {
-      acceptFriend(id).then((data) => {
-        if(data.error === 1) {
-          console.log(data.data);
-        } else {
-          getFriends().then((amis) => {
-            this.amis = amis.data;
-          });
-          this.$store.dispatch('addConversation', data.data.conversation);
-        }
-
-        this.$store.dispatch('getRequestFriends')
-
-      })
+      this.$store.dispatch('friends/acceptFriend', id);
+      // acceptFriend(id).then((data) => {
+      //   if(data.error === 1) {
+      //     console.log(data.data);
+      //   } else {
+      //     getFriends().then((amis) => {
+      //       this.amis = amis.data;
+      //     });
+      //     this.$store.dispatch('addConversation', data.data.conversation);
+      //   }
+      //
+      //   this.$store.dispatch('getRequestFriends')
+      //
+      // })
     }
   },
   data() {
     return {
-      amis: [],
       AjouterAmi: false,
       search: '',
       listNotFriend: [],
@@ -142,14 +144,10 @@ export default {
     }
   },
   mounted() {
-    getFriends().then((amis) => {
-      this.amis = amis.data;
-    });
 
+    this.$store.dispatch('friends/getFriends')
     this.$store.dispatch('getRequestFriends')
-
-
-  }
+  },
 }
 </script>
 <style scoped>

@@ -39,7 +39,6 @@ const removeFriend = async (id_user, id_friend) => {
 
     try {
         await client.query('BEGIN');
-
         let sql = 'DELETE FROM friends WHERE user_id = $1 AND friend_id = $2 RETURNING *';
         let values = [id_user, id_friend];
         result = await client.query(sql, values);

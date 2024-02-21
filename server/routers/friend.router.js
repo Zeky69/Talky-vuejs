@@ -12,6 +12,7 @@ router.get('/request', authenticateToken, FriendController.getFriendRequests);
 router.post('/accept/:id', authenticateToken, FriendController.acceptFriend);
 router.post('/block/:id', authenticateToken, FriendController.blockFriend);
 router.get('/blocked', authenticateToken, FriendController.getBlockedFriendRequests);
+router.delete('/refuse/:id', authenticateToken, FriendController.removeFriendRequest);
 // router.delete('/unblock/:id', authenticateToken, FriendController.unblockFriendRequest);
 
 router.get('/search/:username', authenticateToken, FriendController.getListNotFriendStartLike);
