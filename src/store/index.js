@@ -24,9 +24,11 @@ export default new Vuex.Store({
     userId: null,
     username: null,
     avatar: null,
+    email: null,
     token: null,
     conversations: [],
-    requestFriends: []
+    requestFriends: [],
+    theme: 'dark'
   },
   getters: {
     getSocket(state) {
@@ -44,6 +46,9 @@ export default new Vuex.Store({
     getAvatar(state) {
         return state.avatar;
     },
+    getEmail(state) {
+      return state.email;
+    },
     getToken(state) {
       return state.token;
     },
@@ -52,6 +57,9 @@ export default new Vuex.Store({
     },
     getRequestFriends(state) {
       return state.requestFriends;
+    },
+    getTheme(state) {
+      return state.theme;
     }
   },
   mutations: {
@@ -76,6 +84,9 @@ export default new Vuex.Store({
     setAvatar(state, avatar) {
     state.avatar = avatar;
     },
+    setEmail(state, email) {
+      state.email = email;
+    },
     addConversation(state, conversation) {
       state.conversations.push(conversation);
     },
@@ -85,8 +96,24 @@ export default new Vuex.Store({
     removeRequestFriends(state, id) {
          state.requestFriends.splice(state.requestFriends.findIndex(friend => friend.id === id), 1);
       }
+    ,setTheme(state, theme) {
+      state.theme = theme;
+    }
   },
   actions: {
+
+    loadTheme({commit}) {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      commit('setTheme', theme);
+    },
+
+    toggleTheme({commit, state}) {
+      const newTheme = state.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', newTheme);
+      document.documentElement.setAttribute('data-theme', newTheme);
+      commit('setTheme', newTheme);
+    },
 
     initializeSocket({ commit ,rootState}) {
         const socket = connectSocket(Cookies.get('jwt'));
@@ -156,6 +183,7 @@ export default new Vuex.Store({
         commit('setUserId', data.userId);
         commit('setUsername', data.username);
         commit('setAvatar', data.avatar);
+        commit('setEmail', data.email);
         commit('setToken', data.token);
         axiosAgent.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
 
@@ -164,6 +192,7 @@ export default new Vuex.Store({
         commit('setIsAuthenticated', false);
         commit('setUserId', null);
         commit('setUsername', null);
+        commit('setEmail', null);
         commit('setToken', null);
         state.socket.disconnect();
         commit('setSocket', null);

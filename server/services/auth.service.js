@@ -117,6 +117,21 @@ const setNewAvatar = async (id_user, avatar) => {
     }
 }
 
+const getPublicAccountById = async (id_user) => {
+    const client = await pool.connect();
+    try {
+        const sql = 'SELECT id, username, avatar, email FROM users WHERE id = $1';
+        const values = [id_user];
+        const result = await client.query(sql, values);
+        return result.rows[0];
+    } catch(err) {
+        console.log(err);
+        return null;
+    } finally {
+        client.release();
+    }
+}
+
 
 
 module.exports = {
@@ -125,5 +140,6 @@ module.exports = {
     createAccount,
     getAccountById,
     getAccountByUsername,
-    setNewAvatar
+    setNewAvatar,
+    getPublicAccountById
 }

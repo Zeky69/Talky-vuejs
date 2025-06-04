@@ -71,7 +71,7 @@ const  removeConversation = async (idConversation) => {
         let values = [idConversation];
 
         let result = await client.query(sql, values);
-        return result.row;
+        return result.rows[0];
     }catch (err){
         console.log(err)
         return []

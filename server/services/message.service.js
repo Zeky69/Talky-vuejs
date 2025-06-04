@@ -23,7 +23,7 @@ const  removeMessage = async (id_message) => {
         let values = [id_message];
 
         let result = await client.query(sql, values);
-        return result.row;
+        return result.rows[0];
     }catch (err){
         console.log(err)
         return []

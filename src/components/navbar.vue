@@ -98,7 +98,7 @@
             <i class="fas fa-sign-out-alt"></i>
             <span> Déconnexion</span>
           </div>
-          <div>
+          <div @click="toggleTheme">
             <i class="fas fa-moon"></i>
             <span>Apparance</span></div>
           <div>
@@ -158,6 +158,9 @@ export default {
   },
   methods: {
     getImage,
+    toggleTheme() {
+      this.$store.dispatch('toggleTheme');
+    },
     logout() {
       this.$store.dispatch('unAuthenticate').then(() => {
         this.$router.push('/login').catch(() => {
