@@ -11,6 +11,7 @@ const authRouter = require('./routers/Auth.router');
 const friendRouter = require('./routers/friend.router');
 const conversationRouter = require('./routers/conversation.router');
 const imageRoutes = require('./routers/image.router');
+const userRouter = require('./routers/user.router');
 const jwt = require("jsonwebtoken");
 const path = require("path");
 
@@ -41,6 +42,7 @@ app.use('/auth/',authRouter );
 app.use('/friends/',friendRouter );
 app.use('/conversations/',conversationRouter);
 app.use('/image', imageRoutes);
+app.use('/users', userRouter);
 
 
 
